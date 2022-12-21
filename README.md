@@ -1,0 +1,2 @@
+# WenboGo
+a go project
