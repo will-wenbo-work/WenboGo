@@ -2,8 +2,7 @@ package main
 
 import "sync"
 
-// "github.com/elastic/go-elasticsearch/v8"
-var events = allEvents{}
+var eventsDB = allEvents{}
 var titleMap = make(map[string][]int)
 var versionMap = make(map[string][]int)
 var maintainersMap = make(map[string][]int)
@@ -16,17 +15,13 @@ var mu sync.Mutex
 
 func SaveEvent(newEvent event) {
 	mu.Lock()
-	NewEventDataDedup()
-	events = append(events, newEvent)
-	IndexingEachField(len(events), newEvent)
+	eventsDB = append(eventsDB, newEvent)
+	IndexingEachField(newEvent, len(eventsDB))
 	mu.Unlock()
 }
 
-func NewEventDataDedup(newEvent event) {
-	//
-}
-
-func IndexingEachField(id int, newEvent event) {
+// we have hashmap for each field, key-value: <field string - eventID>, eventID is len(events)
+func IndexingEachField(newEvent event, id int) {
 	titleList, ok := titleMap[newEvent.Title]
 	if ok {
 		titleMap[newEvent.Title] = append(titleList, id)
@@ -36,63 +31,64 @@ func IndexingEachField(id int, newEvent event) {
 		titleMap[newEvent.Title] = newTitleList
 	}
 
-	versionList, ok := versionMap[newEvent.version]
+	versionList, ok := versionMap[newEvent.Version]
 	if ok {
-		versionMap[newEvent.version] = append(versionList, id)
+		versionMap[newEvent.Version] = append(versionList, id)
 	} else {
 		var newVersionList []int
 		newVersionList = append(newVersionList, id)
-		titleMap[newEvent.version] = newVersionList
+		versionMap[newEvent.Version] = newVersionList
 	}
 
-	companyList, ok := companyMap[newEvent.company]
+	companyList, ok := companyMap[newEvent.Company]
 	if ok {
-		companyMap[newEvent.company] = append(companyList, id)
+		companyMap[newEvent.Company] = append(companyList, id)
 	} else {
 		var newCompanyList []int
 		newCompanyList = append(newCompanyList, id)
-		titleMap[newEvent.version] = newCompanyList
+		companyMap[newEvent.Version] = newCompanyList
 	}
 
-	websitList, ok := websiteMap[newEvent.website]
+	websitList, ok := websiteMap[newEvent.Website]
 	if ok {
-		websiteMap[newEvent.website] = append(websitList, id)
+		websiteMap[newEvent.Website] = append(websitList, id)
 	} else {
 		var websitList []int
 		websitList = append(websitList, id)
-		titleMap[newEvent.version] = websitList
+		websiteMap[newEvent.Website] = websitList
 	}
 
-	sourceList, ok := sourceMap[newEvent.source]
+	sourceList, ok := sourceMap[newEvent.Source]
 	if ok {
-		sourceMap[newEvent.source] = append(sourceList, id)
+		sourceMap[newEvent.Source] = append(sourceList, id)
 	} else {
 		var sourceList []int
 		sourceList = append(sourceList, id)
-		titleMap[newEvent.version] = sourceList
+		sourceMap[newEvent.Source] = sourceList
 	}
 
-	licenseList, ok := licenseMap[newEvent.license]
+	licenseList, ok := licenseMap[newEvent.License]
 	if ok {
-		licenseMap[newEvent.license] = append(licenseList, id)
+		licenseMap[newEvent.License] = append(licenseList, id)
 	} else {
 		var licenseList []int
 		licenseList = append(licenseList, id)
-		licenseMap[newEvent.version] = licenseList
+		licenseMap[newEvent.License] = licenseList
 	}
 
 	descriptionList, ok := descriptionMap[newEvent.Description]
 	if ok {
-		descriptionMap[newEvent.license] = append(descriptionList, id)
+		descriptionMap[newEvent.Description] = append(descriptionList, id)
 	} else {
 		var descriptionList []int
 		descriptionList = append(descriptionList, id)
-		descriptionMap[newEvent.version] = descriptionList
+		descriptionMap[newEvent.Description] = descriptionList
 	}
 }
 
-func SearchEventByField(eventParams event) {
+func searchEventByField(eventParams event) []int {
 	resultSet := make(map[int]bool)
+	var resultList []int
 
 	//title
 	if eventParams.Title != "" {
@@ -103,10 +99,10 @@ func SearchEventByField(eventParams event) {
 	}
 
 	//version
-	if eventParams.version != "" {
+	if eventParams.Version != "" {
 		// versionList := versionMap[eventParams.version]
 		tempSet := make(map[int]bool)
-		for _, id := range versionMap[eventParams.version] {
+		for _, id := range versionMap[eventParams.Version] {
 			tempSet[id] = true
 		}
 
@@ -118,9 +114,9 @@ func SearchEventByField(eventParams event) {
 	}
 
 	//company
-	if eventParams.company != "" {
+	if eventParams.Company != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range companyMap[eventParams.version] {
+		for _, id := range companyMap[eventParams.Company] {
 			tempSet[id] = true
 		}
 
@@ -132,9 +128,9 @@ func SearchEventByField(eventParams event) {
 	}
 
 	//website
-	if eventParams.website != "" {
+	if eventParams.Website != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.website] {
+		for _, id := range websiteMap[eventParams.Website] {
 			tempSet[id] = true
 		}
 
@@ -146,9 +142,9 @@ func SearchEventByField(eventParams event) {
 	}
 
 	//source
-	if eventParams.source != "" {
+	if eventParams.Source != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.source] {
+		for _, id := range websiteMap[eventParams.Source] {
 			tempSet[id] = true
 		}
 
@@ -160,9 +156,9 @@ func SearchEventByField(eventParams event) {
 	}
 
 	//license
-	if eventParams.license != "" {
+	if eventParams.License != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.license] {
+		for _, id := range websiteMap[eventParams.License] {
 			tempSet[id] = true
 		}
 
@@ -184,6 +180,13 @@ func SearchEventByField(eventParams event) {
 			if !tempSet[k] {
 				resultSet[k] = false
 			}
+
+			//move all intersection to a list
+			if resultSet[k] {
+				resultList = append(resultList, k)
+			}
 		}
 	}
+
+	return resultList
 }

@@ -28,39 +28,29 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homeLink)
 	router.HandleFunc("/event", createEvent).Methods("POST")
-	router.HandleFunc("/events", getEvents).Methods("GET")
+	router.HandleFunc("/events", getEventsByParams).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 type event struct {
-	Title       string
-	version     string
-	maintainers []maintainer
-	company     string
-	website     string
-	source      string
-	license     string
-	Description string `json:"Description"`
+	Title       string       `json:"Title"`
+	Version     string       `json:"Version"`
+	Maintainers []maintainer `json:"Maintainers"`
+	Company     string       `json:"Company"`
+	Website     string       `json:"Website"`
+	Source      string       `json:"Source"`
+	License     string       `json:"License"`
+	Description string       `json:"Description"`
 }
 
 type maintainer struct {
-	name  string
-	email string
+	Name  string
+	Email string
 }
 
 type allEvents []event
 
 func createEvent(w http.ResponseWriter, r *http.Request) {
-	// newEvent := event{
-	// 	Title:       "title",
-	// 	version:     "name",
-	// 	maintainers: nil,
-	// 	company:     "company",
-	// 	website:     "web",
-	// 	source:      "source",
-	// 	license:     "license",
-	// 	Description: "Description",
-	// }
 
 	var newEvent event
 	// validator
@@ -71,20 +61,28 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(reqBody, &newEvent)
 
-	SaveEvent(newEvent)
+	if !isEventExist(newEvent) {
+		SaveEvent(newEvent)
+	}
 
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(newEvent)
 }
 
-func getEvents(w http.ResponseWriter, r *http.Request) {
+// Data dedup, if event exist in DB, stop from save it again
+func isEventExist(newEvent event) bool {
+	var resultList = searchEventByField(newEvent)
+	return len(resultList) != 0
+}
 
-	// eventID := mux.Vars(r)["id"]
+func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 
-	// for _, singleEvent := range events {
-	// 	if singleEvent.ID == eventID {
-	// 		json.NewEncoder(w).Encode(singleEvent)
-	// 	}
-	// }
+	var eventParams event
+	if mux.Vars(r)["Title"] != "" {
+		eventParams.Title = mux.Vars(r)["Title"]
+	}
+
+	var eventIds = searchEventByField(eventParams)
+	eventIds = append(eventIds, 0)
 }
