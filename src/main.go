@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	// "./mockDB"
+	// elastic search is a backup solutioin
 	// "github.com/elastic/go-elasticsearch/v8"
 	"github.com/gorilla/mux"
 )
