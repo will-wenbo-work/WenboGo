@@ -12,15 +12,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func homeLink(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome home!")
-}
-
-// func getESClient() {
+// func getElasticSearchClient() {
 // 	client, err := elasticsearch.NewDefaultClient()
 // 	log.Println(elasticsearch.Version)
 // 	return client, err
-
 // }
 
 func main() {
@@ -79,8 +74,24 @@ func isEventExist(newEvent event) bool {
 func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 
 	var eventParams event
-	if mux.Vars(r)["Title"] != "" {
-		eventParams.Title = mux.Vars(r)["Title"]
+
+	var url = r.URL
+	print(url)
+
+	if r.URL.Query().Get("Title") != "" {
+		eventParams.Title = r.URL.Query().Get("Title")
+	}
+
+	if r.URL.Query().Get("Version") != "" {
+		eventParams.Version = r.URL.Query().Get("Version")
+	}
+
+	if r.URL.Query().Get("Maintainers") != "" {
+		eventParams.Maintainers = r.URL.Query().Get("Maintainers")
+	}
+
+	if r.URL.Query().Get("") != "" {
+		eventParams.Title = r.URL.Query().Get("Title")
 	}
 
 	var eventIds = searchEventByField(eventParams)
