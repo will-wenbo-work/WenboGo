@@ -86,12 +86,28 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 		eventParams.Version = r.URL.Query().Get("Version")
 	}
 
-	if r.URL.Query().Get("Maintainers") != "" {
+	if r.URL.Query().Get("Maintainers") != nil {
 		eventParams.Maintainers = r.URL.Query().Get("Maintainers")
 	}
 
-	if r.URL.Query().Get("") != "" {
-		eventParams.Title = r.URL.Query().Get("Title")
+	if r.URL.Query().Get("Company") != "" {
+		eventParams.Company = r.URL.Query().Get("Company")
+	}
+
+	if r.URL.Query().Get("Website") != "" {
+		eventParams.Website = r.URL.Query().Get("Website")
+	}
+
+	if r.URL.Query().Get("Source") != "" {
+		eventParams.Source = r.URL.Query().Get("Source")
+	}
+
+	if r.URL.Query().Get("License") != "" {
+		eventParams.License = r.URL.Query().Get("License")
+	}
+
+	if r.URL.Query().Get("Description") != "" {
+		eventParams.Description = r.URL.Query().Get("Description")
 	}
 
 	var eventIds = searchEventByField(eventParams)
