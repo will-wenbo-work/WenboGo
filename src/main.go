@@ -30,7 +30,7 @@ type event struct {
 	Description string       `json:"Description"`
 }
 
-type eventSearch struct {
+type eventSearchParam struct {
 	Title            string
 	Version          string
 	MaintainersEmail string
@@ -90,7 +90,7 @@ func isEventExist(newEvent event) bool {
 
 func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 
-	var eventParams event
+	var eventParams eventSearchParam
 
 	var url = r.URL
 	print(url)
@@ -103,12 +103,12 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 		eventParams.Version = r.URL.Query().Get("Version")
 	}
 
-	if r.URL.Query().Get("MaintainersEmail") != nil {
-		eventParams.Maintainers = r.URL.Query().Get("MaintainersEamil")
+	if r.URL.Query().Get("MaintainersEmail") != "" {
+		eventParams.MaintainersEmail = r.URL.Query().Get("MaintainersEamil")
 	}
 
-	if r.URL.Query().Get("MaintainersName") != nil {
-		eventParams.Maintainers = r.URL.Query().Get("MaintainersName")
+	if r.URL.Query().Get("MaintainersName") != "" {
+		eventParams.maintainersName = r.URL.Query().Get("MaintainersName")
 	}
 
 	if r.URL.Query().Get("Company") != "" {

@@ -5,7 +5,8 @@ import "sync"
 var eventsDB = allEvents{}
 var titleMap = make(map[string][]int)
 var versionMap = make(map[string][]int)
-var maintainersMap = make(map[string][]int)
+var maintainersNameMap = make(map[string][]int)
+var maintainersEmailMap = make(map[string][]int)
 var companyMap = make(map[string][]int)
 var websiteMap = make(map[string][]int)
 var sourceMap = make(map[string][]int)
@@ -84,6 +85,8 @@ func IndexingEachField(newEvent event, id int) {
 		descriptionList = append(descriptionList, id)
 		descriptionMap[newEvent.Description] = descriptionList
 	}
+
+	//loop over maintainerName and maintainerEmail, put them into a map too
 }
 
 func searchEventByField(eventParams event) []int {
