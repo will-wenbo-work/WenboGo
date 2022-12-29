@@ -20,14 +20,19 @@ import (
 // }
 
 type event struct {
-	Title       string       `json:"Title"`
-	Version     string       `json:"Version"`
-	Maintainers []maintainer `json:"Maintainers"`
-	Company     string       `json:"Company"`
-	Website     string       `json:"Website"`
-	Source      string       `json:"Source"`
-	License     string       `json:"License"`
-	Description string       `json:"Description"`
+	Title       string     `json:"Title"`
+	Version     string     `json:"Version"`
+	Maintainers maintainer `json:"Maintainers"`
+	Company     string     `json:"Company"`
+	Website     string     `json:"Website"`
+	Source      string     `json:"Source"`
+	License     string     `json:"License"`
+	Description string     `json:"Description"`
+}
+
+type maintainer struct {
+	Name  string
+	Email string
 }
 
 type eventSearchParam struct {
@@ -42,11 +47,6 @@ type eventSearchParam struct {
 	Description      string
 }
 
-type maintainer struct {
-	Name  string
-	Email string
-}
-
 type allEvents []event
 
 func main() {
@@ -59,20 +59,16 @@ func main() {
 func createEvent(w http.ResponseWriter, r *http.Request) {
 
 	var newEvent event
-	// validator
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Fprintf(w, "Kindly enter request data")
 	}
-
 	yaml.Unmarshal(reqBody, &newEvent)
 
 	if validateReq(newEvent) != "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(validateReq(newEvent))
-
 	} else {
-
 		if !isEventExist(newEvent) {
 			SaveEvent(newEvent)
 		}
@@ -84,7 +80,8 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 
 // Data dedup, check if event exists in DB.
 func isEventExist(newEvent event) bool {
-	var resultList = searchEventByField(newEvent)
+	var newEventSearchParam = FlatenEvent2EventSearchParam(newEvent)
+	var resultList = searchEventByField(newEventSearchParam)
 	return len(resultList) != 0
 }
 
@@ -132,5 +129,12 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var eventIds = searchEventByField(eventParams)
-	eventIds = append(eventIds, 0)
+
+	var eventsList = allEvents{}
+	for _, v := range eventIds {
+		eventsList = append(eventsList, eventsDB[v])
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(eventsList)
 }

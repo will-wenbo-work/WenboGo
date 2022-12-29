@@ -17,7 +17,7 @@ var mu sync.Mutex
 func SaveEvent(newEvent event) {
 	mu.Lock()
 	eventsDB = append(eventsDB, newEvent)
-	IndexingEachField(newEvent, len(eventsDB))
+	IndexingEachField(newEvent, len(eventsDB)-1)
 	mu.Unlock()
 }
 
@@ -47,7 +47,7 @@ func IndexingEachField(newEvent event, id int) {
 	} else {
 		var newCompanyList []int
 		newCompanyList = append(newCompanyList, id)
-		companyMap[newEvent.Version] = newCompanyList
+		companyMap[newEvent.Company] = newCompanyList
 	}
 
 	websitList, ok := websiteMap[newEvent.Website]
@@ -89,14 +89,18 @@ func IndexingEachField(newEvent event, id int) {
 	//loop over maintainerName and maintainerEmail, put them into a map too
 }
 
-func searchEventByField(eventParams event) []int {
+func searchEventByField(eventParams eventSearchParam) []int {
 	resultSet := make(map[int]bool)
+	for k := range eventsDB {
+		resultSet[k] = true
+	}
+
 	var resultList []int
 
 	//title
 	if eventParams.Title != "" {
 		// titleList := companyMap[eventParams.Title]
-		for _, id := range companyMap[eventParams.Title] {
+		for _, id := range titleMap[eventParams.Title] {
 			resultSet[id] = true
 		}
 	}
@@ -147,7 +151,7 @@ func searchEventByField(eventParams event) []int {
 	//source
 	if eventParams.Source != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.Source] {
+		for _, id := range sourceMap[eventParams.Source] {
 			tempSet[id] = true
 		}
 
@@ -161,7 +165,7 @@ func searchEventByField(eventParams event) []int {
 	//license
 	if eventParams.License != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.License] {
+		for _, id := range licenseMap[eventParams.License] {
 			tempSet[id] = true
 		}
 
@@ -175,7 +179,7 @@ func searchEventByField(eventParams event) []int {
 	//description
 	if eventParams.Description != "" {
 		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.Description] {
+		for _, id := range descriptionMap[eventParams.Description] {
 			tempSet[id] = true
 		}
 
@@ -183,11 +187,12 @@ func searchEventByField(eventParams event) []int {
 			if !tempSet[k] {
 				resultSet[k] = false
 			}
+		}
+	}
 
-			//move all intersection to a list
-			if resultSet[k] {
-				resultList = append(resultList, k)
-			}
+	for k, _ := range resultSet {
+		if resultSet[k] {
+			resultList = append(resultList, k)
 		}
 	}
 
