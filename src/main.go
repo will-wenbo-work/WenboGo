@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
 	// elastic search is a backup solutioin
 	// "github.com/elastic/go-elasticsearch/v8"
 	"github.com/gorilla/mux"
+	"gopkg.in/yaml.v3"
 )
 
 // func getElasticSearchClient() {
@@ -17,15 +18,6 @@ import (
 // 	log.Println(elasticsearch.Version)
 // 	return client, err
 // }
-
-func main() {
-
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", homeLink)
-	router.HandleFunc("/event", createEvent).Methods("POST")
-	router.HandleFunc("/events", getEventsByParams).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8080", router))
-}
 
 type event struct {
 	Title       string       `json:"Title"`
@@ -38,6 +30,18 @@ type event struct {
 	Description string       `json:"Description"`
 }
 
+type eventSearch struct {
+	Title            string
+	Version          string
+	MaintainersEmail string
+	maintainersName  string
+	Company          string
+	Website          string
+	Source           string
+	License          string
+	Description      string
+}
+
 type maintainer struct {
 	Name  string
 	Email string
@@ -45,27 +49,40 @@ type maintainer struct {
 
 type allEvents []event
 
+func main() {
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/event", createEvent).Methods("POST")
+	router.HandleFunc("/events", getEventsByParams).Methods("GET")
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
 func createEvent(w http.ResponseWriter, r *http.Request) {
 
 	var newEvent event
 	// validator
-	reqBody, err := ioutil.ReadAll(r.Body)
+	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintf(w, "Kindly enter data with the event title and description only in order to update")
+		fmt.Fprintf(w, "Kindly enter request data")
 	}
 
-	json.Unmarshal(reqBody, &newEvent)
+	yaml.Unmarshal(reqBody, &newEvent)
 
-	if !isEventExist(newEvent) {
-		SaveEvent(newEvent)
+	if validateReq(newEvent) != "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(validateReq(newEvent))
+
+	} else {
+
+		if !isEventExist(newEvent) {
+			SaveEvent(newEvent)
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(newEvent)
 	}
-
-	w.WriteHeader(http.StatusCreated)
-
-	json.NewEncoder(w).Encode(newEvent)
 }
 
-// Data dedup, if event exist in DB, stop from save it again
+// Data dedup, check if event exists in DB.
 func isEventExist(newEvent event) bool {
 	var resultList = searchEventByField(newEvent)
 	return len(resultList) != 0
@@ -86,8 +103,12 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 		eventParams.Version = r.URL.Query().Get("Version")
 	}
 
-	if r.URL.Query().Get("Maintainers") != nil {
-		eventParams.Maintainers = r.URL.Query().Get("Maintainers")
+	if r.URL.Query().Get("MaintainersEmail") != nil {
+		eventParams.Maintainers = r.URL.Query().Get("MaintainersEamil")
+	}
+
+	if r.URL.Query().Get("MaintainersName") != nil {
+		eventParams.Maintainers = r.URL.Query().Get("MaintainersName")
 	}
 
 	if r.URL.Query().Get("Company") != "" {
