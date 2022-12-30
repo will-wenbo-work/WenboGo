@@ -14,6 +14,7 @@ var licenseMap = make(map[string][]int)
 var descriptionMap = make(map[string][]int)
 var mu sync.Mutex
 
+// save the event, lock the "table" when writing.
 func SaveEvent(newEvent event) {
 	mu.Lock()
 	eventsDB = append(eventsDB, newEvent)
@@ -21,7 +22,7 @@ func SaveEvent(newEvent event) {
 	mu.Unlock()
 }
 
-// we have hashmap for each field, key-value: <field string - eventID>, eventID is len(events)
+// we have hashmap for each field, key-value: <field name - eventID>, eventID is len(events)
 func IndexingEachField(newEvent event, id int) {
 	titleList, ok := titleMap[newEvent.Title]
 	if ok {
@@ -86,9 +87,28 @@ func IndexingEachField(newEvent event, id int) {
 		descriptionMap[newEvent.Description] = descriptionList
 	}
 
-	//loop over maintainerName and maintainerEmail, put them into a map too
+	for _, v := range newEvent.Maintainers {
+		maintainerNameList, ok := maintainersNameMap[v.Name]
+		if ok {
+			maintainersNameMap[v.Name] = append(maintainerNameList, id)
+		} else {
+			var maintainerNameList []int
+			maintainerNameList = append(maintainerNameList, id)
+			maintainersNameMap[v.Name] = maintainerNameList
+		}
+
+		maintainerEmailList, ok := maintainersEmailMap[v.Name]
+		if ok {
+			maintainersEmailMap[v.Name] = append(maintainerEmailList, id)
+		} else {
+			var maintainerEmailList []int
+			maintainerEmailList = append(maintainerEmailList, id)
+			maintainersEmailMap[v.Name] = maintainerEmailList
+		}
+	}
 }
 
+// search by parameter, we get the list of eventIDs for each field, then get the intersection of all the lists. the intersection is the result of search
 func searchEventByField(eventParams eventSearchParam) []int {
 	resultSet := make(map[int]bool)
 	for k := range eventsDB {
@@ -190,6 +210,33 @@ func searchEventByField(eventParams eventSearchParam) []int {
 		}
 	}
 
+	for _, maintainerName := range eventParams.maintainersNames {
+		tempSet := make(map[int]bool)
+		for _, id := range maintainersNameMap[maintainerName] {
+			tempSet[id] = true
+		}
+
+		for k, _ := range resultSet {
+			if !tempSet[k] {
+				resultSet[k] = false
+			}
+		}
+	}
+
+	for _, maintainerEmail := range eventParams.MaintainersEmails {
+		tempSet := make(map[int]bool)
+		for _, id := range maintainersNameMap[maintainerEmail] {
+			tempSet[id] = true
+		}
+
+		for k, _ := range resultSet {
+			if !tempSet[k] {
+				resultSet[k] = false
+			}
+		}
+	}
+
+	//merge intersection
 	for k, _ := range resultSet {
 		if resultSet[k] {
 			resultList = append(resultList, k)

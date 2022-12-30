@@ -20,14 +20,14 @@ import (
 // }
 
 type event struct {
-	Title       string     `json:"Title"`
-	Version     string     `json:"Version"`
-	Maintainers maintainer `json:"Maintainers"`
-	Company     string     `json:"Company"`
-	Website     string     `json:"Website"`
-	Source      string     `json:"Source"`
-	License     string     `json:"License"`
-	Description string     `json:"Description"`
+	Title       string       `json:"Title"`
+	Version     string       `json:"Version"`
+	Maintainers []maintainer `json:"Maintainers"`
+	Company     string       `json:"Company"`
+	Website     string       `json:"Website"`
+	Source      string       `json:"Source"`
+	License     string       `json:"License"`
+	Description string       `json:"Description"`
 }
 
 type maintainer struct {
@@ -36,15 +36,15 @@ type maintainer struct {
 }
 
 type eventSearchParam struct {
-	Title            string
-	Version          string
-	MaintainersEmail string
-	maintainersName  string
-	Company          string
-	Website          string
-	Source           string
-	License          string
-	Description      string
+	Title             string
+	Version           string
+	MaintainersEmails []string
+	maintainersNames  []string
+	Company           string
+	Website           string
+	Source            string
+	License           string
+	Description       string
 }
 
 type allEvents []event
@@ -89,9 +89,6 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 
 	var eventParams eventSearchParam
 
-	var url = r.URL
-	print(url)
-
 	if r.URL.Query().Get("Title") != "" {
 		eventParams.Title = r.URL.Query().Get("Title")
 	}
@@ -101,11 +98,13 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("MaintainersEmail") != "" {
-		eventParams.MaintainersEmail = r.URL.Query().Get("MaintainersEamil")
+		r.ParseForm()
+		eventParams.MaintainersEmails = r.Form["MaintainersEmail"]
 	}
 
 	if r.URL.Query().Get("MaintainersName") != "" {
-		eventParams.maintainersName = r.URL.Query().Get("MaintainersName")
+		r.ParseForm()
+		eventParams.maintainersNames = r.Form["MaintainersName"]
 	}
 
 	if r.URL.Query().Get("Company") != "" {
