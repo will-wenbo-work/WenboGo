@@ -1,2 +1,48 @@
-# WenboGo
-a go project
+# golang project
+happy holiday
+# How to run 
+1, make sure you have go envrionment in your local machine
+2, download this package and cd to src
+3, run 'go build'
+4, run './src'
+# Open APIs
+1  POST: http://localhost:8080/event
+this api take yaml payload, here's an example payload:
+```yaml
+title: Valid App 1
+version: 0.0.1
+maintainers:
+- name: firstmaintainer app1
+  email: firstmaintainer@hotmail.com
+- name: secondmaintainer app1
+  email: secondmaintainer@gmail.com
+company: Random Inc.
+website: https://website.com
+source: https://github.com/random/repo
+license: Apache-2.0
+description: |
+ ### Interesting Title
+ Some application content, and description
+``` 
+
+2  POST: http://localhost:8080/events/?parameter=value&parameter=value..
+
+
+# What's cool about this project
+1, golang with YAML payload
+2, data deduplicate
+3, data flattener
+4, localing indexing
+5, request/email validation
+
+# What's not so cool about this project
+1, testing coverage (WIP)
+2, service not able to scale up. 
+    We dont have data presistence, only cache data in local. Therefore if more than one service running, those services wont sharing data between each other
+3, go code style. 
+    I dont have much go industrial experience, so code may not look very pretty to you.
+4, we pass search in url parameter, however http url has a limitation of length(by differernt browser). so if you search parameter is too many, or email addresss is tooooo long, then request may not make it to server side.
+
+# What we can do in future
+1, use Elastic Search and Kibana in stead of local indexing. ES is prefect solution for this project.
+2, If we dont presis any data, only do things in cache layer, redis is a good choice which can share data between machines.
