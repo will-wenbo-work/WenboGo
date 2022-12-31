@@ -37,9 +37,9 @@ it returns all saved payloads which meet the search requirement
 # What's cool about this project
 1, golang service with YAML payload
 
-2, data deduplicate
+2, data deduplicate, we deduplicate data if it's already saved once.
 
-3, data flattener
+3, data flattener, we flatten the payload to make seach faster.
 
 4, localing search indexing
 
