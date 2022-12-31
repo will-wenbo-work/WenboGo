@@ -12,7 +12,7 @@ func FlatenEvent2EventSearchParam(eventdata event) eventSearchParam {
 
 	for _, v := range eventdata.Maintainers {
 		result.maintainersNames = append(result.maintainersNames, v.Name)
-		result.MaintainersEmails = append(result.maintainersNames, v.Email)
+		result.MaintainersEmails = append(result.MaintainersEmails, v.Email)
 	}
 
 	return result

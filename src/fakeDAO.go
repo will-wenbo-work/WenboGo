@@ -99,11 +99,11 @@ func IndexingEachField(newEvent event, id int) {
 
 		maintainerEmailList, ok := maintainersEmailMap[v.Name]
 		if ok {
-			maintainersEmailMap[v.Name] = append(maintainerEmailList, id)
+			maintainersEmailMap[v.Email] = append(maintainerEmailList, id)
 		} else {
 			var maintainerEmailList []int
 			maintainerEmailList = append(maintainerEmailList, id)
-			maintainersEmailMap[v.Name] = maintainerEmailList
+			maintainersEmailMap[v.Email] = maintainerEmailList
 		}
 	}
 }
@@ -225,7 +225,7 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	for _, maintainerEmail := range eventParams.MaintainersEmails {
 		tempSet := make(map[int]bool)
-		for _, id := range maintainersNameMap[maintainerEmail] {
+		for _, id := range maintainersEmailMap[maintainerEmail] {
 			tempSet[id] = true
 		}
 
