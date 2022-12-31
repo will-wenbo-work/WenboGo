@@ -2,9 +2,14 @@
 happy holiday
 # How to run 
 1, make sure you have go envrionment in your local machine
+
 2, download this package and cd to src
+
 3, run 'go build'
+
 4, run './src'
+
+or you can open this project in vs code and hit f5 and start local debug
 # Open APIs
 1  POST: http://localhost:8080/event
 this api take yaml payload, here's an example payload:
@@ -30,7 +35,7 @@ it returns all saved payloads which meet the search requirement
 
 
 # What's cool about this project
-1, golang with YAML payload
+1, golang service with YAML payload
 
 2, data deduplicate
 
@@ -41,13 +46,13 @@ it returns all saved payloads which meet the search requirement
 5, request/email validation
 
 # What's not so cool about this project
-1, testing coverage (WIP)
+1, test coverage (WIP)
 
 2, service not able to scale up. 
     We dont have data presistence, only cache data in local. Therefore if more than one service running, those services wont sharing data between each other
 
 3, go code style. 
-    I dont have much go industrial experience, so code may not look very pretty to you.
+    I dont have much industrial experience in go, so code may not look very pretty to you.
 
 4, we pass search in url parameter, however http url has a limitation of length(by differernt browser). so if you search parameter is too many, or email addresss is tooooo long, then request may not make it to server side.
 
