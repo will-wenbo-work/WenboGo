@@ -60,3 +60,5 @@ it returns all saved payloads which meet the search requirement
 1, use Elastic Search and Kibana in stead of local indexing. ES is prefect solution for this project.
 
 2, If we dont presis any data, only do things in cache layer, redis is a good choice which can share data between machines.
+
+3，We can configure the local service in k8s/vm/ec2 host
