@@ -25,24 +25,33 @@ description: |
  Some application content, and description
 ``` 
 
-2  POST: http://localhost:8080/events/?parameter=value&parameter=value..
+2  POST: http://localhost:8080/events/?{parameter}={value}&{parameter}={value}..
+it returns all saved payloads which meet the search requirement 
 
 
 # What's cool about this project
 1, golang with YAML payload
+
 2, data deduplicate
+
 3, data flattener
-4, localing indexing
+
+4, localing search indexing
+
 5, request/email validation
 
 # What's not so cool about this project
 1, testing coverage (WIP)
+
 2, service not able to scale up. 
     We dont have data presistence, only cache data in local. Therefore if more than one service running, those services wont sharing data between each other
+
 3, go code style. 
     I dont have much go industrial experience, so code may not look very pretty to you.
+
 4, we pass search in url parameter, however http url has a limitation of length(by differernt browser). so if you search parameter is too many, or email addresss is tooooo long, then request may not make it to server side.
 
 # What we can do in future
 1, use Elastic Search and Kibana in stead of local indexing. ES is prefect solution for this project.
+
 2, If we dont presis any data, only do things in cache layer, redis is a good choice which can share data between machines.
