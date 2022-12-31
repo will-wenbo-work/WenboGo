@@ -1,0 +1,1 @@
+There should be some config stuff in a go project, but we dont have it yet.
