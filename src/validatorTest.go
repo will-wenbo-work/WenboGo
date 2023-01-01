@@ -14,8 +14,8 @@ func TestEmailValidator(t *testing.T) {
 		"good@exmaple.com",
 		"bad-example",
 	} {
-		if expectedResult[i] != validateEmailAddress(email) {
-			t.Errorf("error when verifing %v, Received %v, expected %v", email, validateEmailAddress(email), expectedResult[i])
+		if expectedResult[i] != isValidEmailAddress(email) {
+			t.Errorf("error when verifing %v, Received %v, expected %v", email, isValidEmailAddress(email), expectedResult[i])
 		}
 	}
 
