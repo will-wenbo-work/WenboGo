@@ -1,5 +1,7 @@
 package main
 
+import "net/mail"
+
 var fields = [...]string{"Title", "Version", "Maintainers", "Company", "Website", "Source", "License", "Description"}
 
 func validateReq(newEvent event) string {
@@ -8,6 +10,6 @@ func validateReq(newEvent event) string {
 }
 
 func validateEmailAddress(emailAddress string) bool {
-	//WIP
-	return true
+	_, err := mail.ParseAddress(emailAddress)
+	return err == nil
 }
