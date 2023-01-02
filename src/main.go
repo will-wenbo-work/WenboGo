@@ -66,6 +66,7 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	yaml.Unmarshal(reqBody, &newEvent)
 
 	if validateReq(newEvent) != "" {
+		fmt.Fprintf(w, "input yaml is valid")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(validateReq(newEvent))
 	} else {
