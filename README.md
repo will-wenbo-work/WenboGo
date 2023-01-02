@@ -41,9 +41,13 @@ it returns all saved payloads which meet the search requirement
 
 3, data flattener, we flatten the payload to make seach faster.
 
-4, localing search indexing
+4, UUID generator
 
-5, request/email validation
+5, localing search indexing
+
+6, request/email validation
+
+7, avoid over-engineering
 
 # What's not so cool about this project
 1, test coverage (WIP)
@@ -62,3 +66,5 @@ it returns all saved payloads which meet the search requirement
 2, If we dont presis any data, only do things in cache layer, redis is a good choice which can share data between machines.
 
 3，We can configure the local service in k8s/vm/ec2 host
+
+4, change UUID generator if we have mutiple machines, or we have delete event API
