@@ -131,8 +131,15 @@ func searchEventByField(eventParams eventSearchParam) []int {
 	//title
 	if eventParams.Title != "" {
 		// titleList := companyMap[eventParams.Title]
+		tempSet := make(map[int]bool)
 		for _, id := range titleMap[eventParams.Title] {
-			resultSet[id] = true
+			tempSet[id] = true
+		}
+
+		for k, _ := range resultSet {
+			if !tempSet[k] {
+				resultSet[k] = false
+			}
 		}
 	}
 
