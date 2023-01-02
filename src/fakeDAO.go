@@ -1,6 +1,8 @@
 package main
 
-import "sync"
+import (
+	"sync"
+)
 
 var eventsDB = allEvents{}
 var titleMap = make(map[string][]int)
@@ -18,8 +20,17 @@ var mu sync.Mutex
 func SaveEvent(newEvent event) {
 	mu.Lock()
 	eventsDB = append(eventsDB, newEvent)
-	IndexingEachField(newEvent, len(eventsDB)-1)
+	var eventId int = generateEventId()
+	IndexingEachField(newEvent, eventId)
 	mu.Unlock()
+}
+
+// generate a UUID, due to we only add/query data, we dont delete/change. After event been added to the eventsDB,
+// the size of eventsDB list will be assigned as the event Id.
+// If we remove/change the event in future, we need to redesign the UUID generator. potential suolution can be Self-incresing
+// time-ip based uuid, etc. To avoid overing-engineering, we just use the most simple way for now.
+func generateEventId() int {
+	return len(eventsDB) - 1
 }
 
 // we have hashmap for each field, key-value: <field name - eventID>, eventID is len(events)
