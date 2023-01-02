@@ -221,7 +221,7 @@ func searchEventByField(eventParams eventSearchParam) []int {
 		}
 	}
 
-	for _, maintainerName := range eventParams.maintainersNames {
+	for _, maintainerName := range eventParams.MaintainersNames {
 		tempSet := make(map[int]bool)
 		for _, id := range maintainersNameMap[maintainerName] {
 			tempSet[id] = true

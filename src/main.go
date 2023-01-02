@@ -39,7 +39,7 @@ type eventSearchParam struct {
 	Title             string
 	Version           string
 	MaintainersEmails []string
-	maintainersNames  []string
+	MaintainersNames  []string
 	Company           string
 	Website           string
 	Source            string
@@ -104,7 +104,7 @@ func getEventsByParams(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Query().Get("MaintainersName") != "" {
 		r.ParseForm()
-		eventParams.maintainersNames = r.Form["MaintainersName"]
+		eventParams.MaintainersNames = r.Form["MaintainersName"]
 	}
 
 	if r.URL.Query().Get("Company") != "" {
