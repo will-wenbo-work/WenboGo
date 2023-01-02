@@ -43,11 +43,13 @@ it returns all saved payloads which meet the search requirement
 
 4, UUID generator
 
-5, localing search indexing
+5, concurrent save in data saving, (but not read committed)
 
-6, request/email validation
+6, localing search indexing
 
-7, avoid over-engineering
+7, request/email validation
+
+8, avoid over-engineering
 
 # What's not so cool about this project
 1, test coverage (WIP)
