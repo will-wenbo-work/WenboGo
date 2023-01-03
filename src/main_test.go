@@ -7,6 +7,17 @@ import (
 )
 
 func TestIfEventExist(t *testing.T) {
+	var savedEvent = getSavedEvent()
+	SaveEvent(savedEvent)
+
+	var unsavedEvent = getUnsavedEvent()
+
+	assert.True(t, isEventExist(savedEvent))
+	assert.False(t, isEventExist(unsavedEvent))
+
+}
+
+func getSavedEvent() event {
 	var testMaintainer maintainer
 	testMaintainer.Email = "aaa@gmail.com"
 	testMaintainer.Name = "zhaowenbo"
@@ -21,19 +32,23 @@ func TestIfEventExist(t *testing.T) {
 	testEvent.Website = "www.holiday_destroyer.com"
 	testEvent.Maintainers = append(testEvent.Maintainers, testMaintainer)
 
-	var testEventWithoutSave event
-	testEventWithoutSave.Title = "titleWithoutSave"
-	testEventWithoutSave.Company = "Company"
-	testEventWithoutSave.Description = "Description"
-	testEventWithoutSave.License = "license"
-	testEventWithoutSave.Source = "Ssource"
-	testEventWithoutSave.Version = "vVersion"
-	testEventWithoutSave.Website = "www.holiday_destroyer.com"
-	testEventWithoutSave.Maintainers = append(testEvent.Maintainers, testMaintainer)
+	return testEvent
+}
 
-	SaveEvent(testEvent)
+func getUnsavedEvent() event {
+	var testMaintainer maintainer
+	testMaintainer.Email = "aaa@gmail.com"
+	testMaintainer.Name = "zhaowenbo"
 
-	assert.True(t, isEventExist(testEvent))
-	assert.False(t, isEventExist(testEventWithoutSave))
+	var testEvent event
+	testEvent.Title = "unsaved event title"
+	testEvent.Company = "Company"
+	testEvent.Description = "Description"
+	testEvent.License = "license"
+	testEvent.Source = "Ssource"
+	testEvent.Version = "vVersion"
+	testEvent.Website = "www.holiday_destroyer.com"
+	testEvent.Maintainers = append(testEvent.Maintainers, testMaintainer)
 
+	return testEvent
 }
