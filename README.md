@@ -30,7 +30,7 @@ description: |
  Some application content, and description
 ``` 
 
-2  POST: http://localhost:8080/events/?{parameter}={value}&{parameter}={value}..
+2  GET: http://localhost:8080/events/?{parameter}={value}&{parameter}={value}..
 it returns all saved payloads which meet the search requirement 
 
 
