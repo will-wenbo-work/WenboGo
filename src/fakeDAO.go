@@ -130,7 +130,6 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//title
 	if eventParams.Title != "" {
-		// titleList := companyMap[eventParams.Title]
 		tempSet := make(map[int]bool)
 		for _, id := range titleMap[eventParams.Title] {
 			tempSet[id] = true
@@ -145,7 +144,6 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//version
 	if eventParams.Version != "" {
-		// versionList := versionMap[eventParams.version]
 		tempSet := make(map[int]bool)
 		for _, id := range versionMap[eventParams.Version] {
 			tempSet[id] = true

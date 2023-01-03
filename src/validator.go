@@ -1,52 +1,53 @@
 package main
 
-import "net/mail"
+import (
+	"errors"
+	"net/mail"
+)
 
-var fields = [...]string{"Title", "Version", "Maintainers", "Company", "Website", "Source", "License", "Description"}
-
-func validateReq(newEvent event) string {
+func validateReq(newEvent event) (bool, error) {
 	if newEvent.Title == "" {
-		return "title is empty"
+		return false, errors.New("invalid title")
 	}
 
 	if newEvent.Version == "" {
-		return "version is empty"
+		return false, errors.New("invalid version")
 	}
 
 	if newEvent.Company == "" {
-		return "company is empty"
+		return false, errors.New("invalid company")
 	}
 
 	if newEvent.Website == "" {
-		return "website is empty"
+		return false, errors.New("invalid website")
 	}
 
 	if newEvent.Source == "" {
-		return "source is empty"
+		return false, errors.New("invalid source")
 	}
 
 	if newEvent.License == "" {
-		return "license is empty"
+		return false, errors.New("invalid license")
 	}
 
 	if newEvent.Description == "" {
-		return "description is empty"
+		return false, errors.New("invalid description")
 	}
 
 	if len(newEvent.Maintainers) == 0 {
-		return "invalid maintainer"
+		return false, errors.New("invalid Maintainer")
 	} else {
 		for _, maintainer := range newEvent.Maintainers {
 			if !isValidEmailAddress(maintainer.Email) {
-				return "maintainer email address is not valid"
+				return false, errors.New("invalid maintainer email")
 			}
 			if maintainer.Name == "" {
-				return "maintainer name is not valid"
+				return false, errors.New("invalid maintainer name")
 			}
 		}
 	}
 
-	return ""
+	return true, nil
 }
 
 func isValidEmailAddress(emailAddress string) bool {

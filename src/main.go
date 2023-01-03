@@ -65,19 +65,24 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	yaml.Unmarshal(reqBody, &newEvent)
 
-	var validateResult string = validateReq(newEvent)
+	validateResult, err := validateReq(newEvent)
 
-	if validateResult != "" { // invalid input
-		fmt.Fprintf(w, "input yaml is valid")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(validateResult)
-	} else { //valid input
+	if validateResult { // valid input
+		log.Println("input yaml is valid!")
+
 		if !isEventExist(newEvent) {
+			log.Println("event does not exsit, saving...")
 			SaveEvent(newEvent)
+			log.Println("event saved")
 		}
 
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(newEvent)
+
+	} else { //invalid input
+		log.Println("input yaml is invalid!")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(err.Error())
 	}
 }
 
