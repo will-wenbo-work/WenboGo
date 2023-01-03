@@ -69,4 +69,6 @@ it returns all saved payloads which meet the search requirement
 
 3，We can configure the local service in k8s/vm/ec2 host
 
-4, change UUID generator if we have mutiple machines, or we have delete event API
+4, implement Create/Update/Read/Delete/Batch_Save APIs
+
+5, change UUID generator if we have mutiple machines, or we have delete event API
