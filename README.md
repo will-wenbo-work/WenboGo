@@ -12,7 +12,7 @@ happy holiday
 or you can open this project in vs code and hit f5 and start local debug
 # Open APIs
 1  POST: http://localhost:8080/event
-this api take yaml payload, here's an example payload:
+this api take yaml payload and save it, here's an example payload:
 ```yaml
 title: Valid App 1
 version: 0.0.1
@@ -45,7 +45,7 @@ it returns all saved payloads which meet the search requirement
 
 5, concurrent save in data saving, (but not read committed)
 
-6, localing search indexing
+6, localing search indexing, every field and be searched.
 
 7, request/email validation
 
@@ -57,10 +57,7 @@ it returns all saved payloads which meet the search requirement
 2, service not able to scale up. 
     We dont have data presistence, only cache data in local. Therefore if more than one service running, those services wont sharing data between each other
 
-3, go code style. 
-    I dont have much industrial experience in go, so code may not look very pretty to you.
-
-4, we pass search in url parameter, however http url has a limitation of length(by differernt browser). so if you search parameter is too many, or email addresss is tooooo long, then request may not make it to server side.
+3, we pass search in url parameter, however http url has a limitation of length(by differernt browser). so if you search parameter is too many, or email addresss is tooooo long, then request may not make it to server side.
 
 # What we can do in future
 1, use Elastic Search and Kibana in stead of local indexing. ES is prefect solution for this project.
