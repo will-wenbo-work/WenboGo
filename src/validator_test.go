@@ -12,7 +12,7 @@ func TestEventValidator(t *testing.T) {
 	var goodevent = getGoodEvent()
 	var badevent = getBadEvent()
 	testCases := []struct {
-		testevent      event
+		testevent      payload
 		expectedResult bool
 		expectedErr    error
 	}{
@@ -54,12 +54,12 @@ func TestEmailValidator(t *testing.T) {
 
 }
 
-func getGoodEvent() event {
+func getGoodEvent() payload {
 	var testMaintainer maintainer
 	testMaintainer.Email = "aaa@gmail.com"
 	testMaintainer.Name = "zhaowenbo"
 
-	var testEvent event
+	var testEvent payload
 	testEvent.Title = "title"
 	testEvent.Company = "Company"
 	testEvent.Description = "Description"
@@ -72,12 +72,12 @@ func getGoodEvent() event {
 	return testEvent
 }
 
-func getBadEvent() event {
+func getBadEvent() payload {
 	var testMaintainer maintainer
 	testMaintainer.Email = "aaa@gmail.com"
 	testMaintainer.Name = "zhaowenbo"
 
-	var testEvent event
+	var testEvent payload
 	testEvent.Company = "Company"
 	testEvent.Description = "Description"
 	testEvent.License = "license"

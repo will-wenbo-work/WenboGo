@@ -1,137 +1,154 @@
 package main
 
 import (
+	"errors"
 	"sync"
 )
 
-var eventsDB = allEvents{}
-var titleMap = make(map[string][]int)
-var versionMap = make(map[string][]int)
-var maintainersNameMap = make(map[string][]int)
-var maintainersEmailMap = make(map[string][]int)
-var companyMap = make(map[string][]int)
-var websiteMap = make(map[string][]int)
-var sourceMap = make(map[string][]int)
-var licenseMap = make(map[string][]int)
-var descriptionMap = make(map[string][]int)
+var payloadDB = allpayload{}
+var title2IdMap = make(map[string][]string)
+var version2IdMap = make(map[string][]string)
+var maintainersName2IdMap = make(map[string][]string)
+var maintainersEmail2IdMap = make(map[string][]string)
+var company2IdMap = make(map[string][]string)
+var website2IdMap = make(map[string][]string)
+var source2IdMap = make(map[string][]string)
+var license2IdMap = make(map[string][]string)
+var description2IdMap = make(map[string][]string)
+var id2PayloadMap = make(map[string]payload)
 var mu sync.Mutex
 
 // save the event, lock the "table" when writing.
-func SaveEvent(newEvent event) {
+func SavePayload(newPayload payload) {
 	mu.Lock()
-	eventsDB = append(eventsDB, newEvent)
-	var eventId int = generateEventId()
-	IndexingEachField(newEvent, eventId)
+	payloadDB = append(payloadDB, newPayload)
+	id2PayloadMap[newPayload.id] = newPayload
+	IndexingEachField(newPayload)
 	mu.Unlock()
 }
 
-// generate a UUID, due to we only add/query data, we dont delete/change. After event been added to the eventsDB,
-// the size of eventsDB list will be assigned as the event Id.
-// If we remove/change the event in future, we need to redesign the UUID generator. potential suolution can be Self-incresing
-// time-ip based uuid, etc. To avoid overing-engineering, we just use the most simple way for now.
-func generateEventId() int {
-	return len(eventsDB) - 1
+func fetchPayload(id string) (payload, error) {
+	val, ok := id2PayloadMap[id]
+	// If the key exists
+	if ok {
+		return val, nil
+	} else {
+		return val, errors.New("invalid payload ID")
+	}
+
 }
 
 // we have hashmap for each field, key-value: <field name - eventID>, eventID is len(events)
-func IndexingEachField(newEvent event, id int) {
-	titleList, ok := titleMap[newEvent.Title]
+func IndexingEachField(newPayload payload) {
+	titleList, ok := title2IdMap[newPayload.Title]
 	if ok {
-		titleMap[newEvent.Title] = append(titleList, id)
+		title2IdMap[newPayload.Title] = append(titleList, newPayload.id)
 	} else {
-		var newTitleList []int
-		newTitleList = append(newTitleList, id)
-		titleMap[newEvent.Title] = newTitleList
+		var newTitleList []string
+		newTitleList = append(newTitleList, newPayload.id)
+		title2IdMap[newPayload.Title] = newTitleList
 	}
 
-	versionList, ok := versionMap[newEvent.Version]
+	versionList, ok := version2IdMap[newPayload.Version]
 	if ok {
-		versionMap[newEvent.Version] = append(versionList, id)
+		version2IdMap[newPayload.Version] = append(versionList, newPayload.id)
 	} else {
-		var newVersionList []int
-		newVersionList = append(newVersionList, id)
-		versionMap[newEvent.Version] = newVersionList
+		var newVersionList []string
+		newVersionList = append(newVersionList, newPayload.id)
+		version2IdMap[newPayload.Version] = newVersionList
 	}
 
-	companyList, ok := companyMap[newEvent.Company]
+	companyList, ok := company2IdMap[newPayload.Company]
 	if ok {
-		companyMap[newEvent.Company] = append(companyList, id)
+		company2IdMap[newPayload.Company] = append(companyList, newPayload.id)
 	} else {
-		var newCompanyList []int
-		newCompanyList = append(newCompanyList, id)
-		companyMap[newEvent.Company] = newCompanyList
+		var newCompanyList []string
+		newCompanyList = append(newCompanyList, newPayload.id)
+		company2IdMap[newPayload.Company] = newCompanyList
 	}
 
-	websitList, ok := websiteMap[newEvent.Website]
+	websitList, ok := website2IdMap[newPayload.Website]
 	if ok {
-		websiteMap[newEvent.Website] = append(websitList, id)
+		website2IdMap[newPayload.Website] = append(websitList, newPayload.id)
 	} else {
-		var websitList []int
-		websitList = append(websitList, id)
-		websiteMap[newEvent.Website] = websitList
+		var websitList []string
+		websitList = append(websitList, newPayload.id)
+		website2IdMap[newPayload.Website] = websitList
 	}
 
-	sourceList, ok := sourceMap[newEvent.Source]
+	sourceList, ok := source2IdMap[newPayload.Source]
 	if ok {
-		sourceMap[newEvent.Source] = append(sourceList, id)
+		source2IdMap[newPayload.Source] = append(sourceList, newPayload.id)
 	} else {
-		var sourceList []int
-		sourceList = append(sourceList, id)
-		sourceMap[newEvent.Source] = sourceList
+		var sourceList []string
+		sourceList = append(sourceList, newPayload.id)
+		source2IdMap[newPayload.Source] = sourceList
 	}
 
-	licenseList, ok := licenseMap[newEvent.License]
+	licenseList, ok := license2IdMap[newPayload.License]
 	if ok {
-		licenseMap[newEvent.License] = append(licenseList, id)
+		license2IdMap[newPayload.License] = append(licenseList, newPayload.id)
 	} else {
-		var licenseList []int
-		licenseList = append(licenseList, id)
-		licenseMap[newEvent.License] = licenseList
+		var licenseList []string
+		licenseList = append(licenseList, newPayload.id)
+		license2IdMap[newPayload.License] = licenseList
 	}
 
-	descriptionList, ok := descriptionMap[newEvent.Description]
+	descriptionList, ok := description2IdMap[newPayload.Description]
 	if ok {
-		descriptionMap[newEvent.Description] = append(descriptionList, id)
+		description2IdMap[newPayload.Description] = append(descriptionList, newPayload.id)
 	} else {
-		var descriptionList []int
-		descriptionList = append(descriptionList, id)
-		descriptionMap[newEvent.Description] = descriptionList
+		var descriptionList []string
+		descriptionList = append(descriptionList, newPayload.id)
+		description2IdMap[newPayload.Description] = descriptionList
 	}
 
-	for _, v := range newEvent.Maintainers {
-		maintainerNameList, ok := maintainersNameMap[v.Name]
+	for _, v := range newPayload.Maintainers {
+		maintainerNameList, ok := maintainersName2IdMap[v.Name]
 		if ok {
-			maintainersNameMap[v.Name] = append(maintainerNameList, id)
+			maintainersName2IdMap[v.Name] = append(maintainerNameList, newPayload.id)
 		} else {
-			var maintainerNameList []int
-			maintainerNameList = append(maintainerNameList, id)
-			maintainersNameMap[v.Name] = maintainerNameList
+			var maintainerNameList []string
+			maintainerNameList = append(maintainerNameList, newPayload.id)
+			maintainersName2IdMap[v.Name] = maintainerNameList
 		}
 
-		maintainerEmailList, ok := maintainersEmailMap[v.Name]
+		maintainerEmailList, ok := maintainersEmail2IdMap[v.Name]
 		if ok {
-			maintainersEmailMap[v.Email] = append(maintainerEmailList, id)
+			maintainersEmail2IdMap[v.Email] = append(maintainerEmailList, newPayload.id)
 		} else {
-			var maintainerEmailList []int
-			maintainerEmailList = append(maintainerEmailList, id)
-			maintainersEmailMap[v.Email] = maintainerEmailList
+			var maintainerEmailList []string
+			maintainerEmailList = append(maintainerEmailList, newPayload.id)
+			maintainersEmail2IdMap[v.Email] = maintainerEmailList
 		}
 	}
 }
 
+func deleteRecord(payloadId string) bool {
+	delete(id2PayloadMap, payloadId)
+
+	for i, singlePayload := range payloadDB {
+		if singlePayload.id == payloadId {
+			payloadDB = append(payloadDB[:i], payloadDB[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
 // search by parameter, we get the list of eventIDs for each field, then get the intersection of all the lists. the intersection is the result of search
-func searchEventByField(eventParams eventSearchParam) []int {
-	resultSet := make(map[int]bool)
-	for k := range eventsDB {
-		resultSet[k] = true
+func searchPayloadByField(eventParams payloadSearchParam) []string {
+	resultSet := make(map[string]bool)
+	for _, v := range payloadDB {
+		resultSet[v.id] = true
 	}
 
-	var resultList []int
+	var resultList []string
 
 	//title
 	if eventParams.Title != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range titleMap[eventParams.Title] {
+		tempSet := make(map[string]bool)
+		for _, id := range title2IdMap[eventParams.Title] {
 			tempSet[id] = true
 		}
 
@@ -144,8 +161,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//version
 	if eventParams.Version != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range versionMap[eventParams.Version] {
+		tempSet := make(map[string]bool)
+		for _, id := range version2IdMap[eventParams.Version] {
 			tempSet[id] = true
 		}
 
@@ -158,8 +175,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//company
 	if eventParams.Company != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range companyMap[eventParams.Company] {
+		tempSet := make(map[string]bool)
+		for _, id := range company2IdMap[eventParams.Company] {
 			tempSet[id] = true
 		}
 
@@ -172,8 +189,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//website
 	if eventParams.Website != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range websiteMap[eventParams.Website] {
+		tempSet := make(map[string]bool)
+		for _, id := range website2IdMap[eventParams.Website] {
 			tempSet[id] = true
 		}
 
@@ -186,8 +203,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//source
 	if eventParams.Source != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range sourceMap[eventParams.Source] {
+		tempSet := make(map[string]bool)
+		for _, id := range source2IdMap[eventParams.Source] {
 			tempSet[id] = true
 		}
 
@@ -200,8 +217,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//license
 	if eventParams.License != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range licenseMap[eventParams.License] {
+		tempSet := make(map[string]bool)
+		for _, id := range license2IdMap[eventParams.License] {
 			tempSet[id] = true
 		}
 
@@ -214,8 +231,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 
 	//description
 	if eventParams.Description != "" {
-		tempSet := make(map[int]bool)
-		for _, id := range descriptionMap[eventParams.Description] {
+		tempSet := make(map[string]bool)
+		for _, id := range description2IdMap[eventParams.Description] {
 			tempSet[id] = true
 		}
 
@@ -227,8 +244,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 	}
 
 	for _, maintainerName := range eventParams.MaintainersNames {
-		tempSet := make(map[int]bool)
-		for _, id := range maintainersNameMap[maintainerName] {
+		tempSet := make(map[string]bool)
+		for _, id := range maintainersName2IdMap[maintainerName] {
 			tempSet[id] = true
 		}
 
@@ -240,8 +257,8 @@ func searchEventByField(eventParams eventSearchParam) []int {
 	}
 
 	for _, maintainerEmail := range eventParams.MaintainersEmails {
-		tempSet := make(map[int]bool)
-		for _, id := range maintainersEmailMap[maintainerEmail] {
+		tempSet := make(map[string]bool)
+		for _, id := range maintainersEmail2IdMap[maintainerEmail] {
 			tempSet[id] = true
 		}
 
@@ -260,4 +277,7 @@ func searchEventByField(eventParams eventSearchParam) []int {
 	}
 
 	return resultList
+}
+
+func deleteIdForEachIndex(eventId int) {
 }

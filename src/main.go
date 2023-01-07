@@ -19,7 +19,8 @@ import (
 // 	return client, err
 // }
 
-type event struct {
+type payload struct {
+	id          string
 	Title       string       `json:"Title"`
 	Version     string       `json:"Version"`
 	Maintainers []maintainer `json:"Maintainers"`
@@ -35,7 +36,7 @@ type maintainer struct {
 	Email string
 }
 
-type eventSearchParam struct {
+type payloadSearchParam struct {
 	Title             string
 	Version           string
 	MaintainersEmails []string
@@ -47,37 +48,53 @@ type eventSearchParam struct {
 	Description       string
 }
 
-type allEvents []event
+type allpayload []payload
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/event", createEvent).Methods("POST")
-	router.HandleFunc("/events", getEventsByParams).Methods("GET")
+	router.HandleFunc("/payload", createPayload).Methods("PUT")
+	router.HandleFunc("/payload/{id}", changePayload).Methods("POST")
+	router.HandleFunc("/payload/{id}", deletePayload).Methods("DELETE")
+	router.HandleFunc("/payload/{id}", getPayloadById).Methods("GET")
+	router.HandleFunc("/payloads", getPayloadsByParams).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
-func createEvent(w http.ResponseWriter, r *http.Request) {
+func getPayloadById(w http.ResponseWriter, r *http.Request) {
+	payloadID := mux.Vars(r)["id"]
+	returnPayload, err := fetchPayload(payloadID)
+	if err == nil {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(returnPayload)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(err.Error())
+	}
 
-	var newEvent event
+}
+
+func changePayload(w http.ResponseWriter, r *http.Request) {
+	var newpayload payload
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Fprintf(w, "Kindly enter request data")
 	}
-	yaml.Unmarshal(reqBody, &newEvent)
+	payloadID := mux.Vars(r)["id"]
+	if payloadID != "" {
+		fmt.Fprintf(w, "please input id")
+	}
 
-	validateResult, err := validateReq(newEvent)
+	yaml.Unmarshal(reqBody, &newpayload)
+
+	validateResult, err := validateReq(newpayload)
 
 	if validateResult { // valid input
 		log.Println("input yaml is valid!")
-
-		if !isEventExist(newEvent) {
-			log.Println("event does not exsit, saving...")
-			SaveEvent(newEvent)
-			log.Println("event saved")
-		}
+		newpayload.id = payloadID
+		SavePayload(newpayload)
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(newEvent)
+		json.NewEncoder(w).Encode(newpayload)
 
 	} else { //invalid input
 		log.Println("input yaml is invalid!")
@@ -86,60 +103,113 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func deletePayload(w http.ResponseWriter, r *http.Request) {
+
+	Id := mux.Vars(r)["id"]
+	if Id == "" {
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode("eventId is empty")
+	}
+	var isdeleted = deleteRecord(Id)
+	if isdeleted {
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode("delete succeeded")
+	} else {
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode("eventId doesn't exsit")
+	}
+
+}
+
+func createPayload(w http.ResponseWriter, r *http.Request) {
+
+	var newpayload payload
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Kindly enter request data")
+	}
+	yaml.Unmarshal(reqBody, &newpayload)
+
+	validateResult, err := validateReq(newpayload)
+
+	if validateResult { // valid input
+		log.Println("input yaml is valid!")
+		var id string
+		if !isPayloadExist(newpayload) {
+
+			id = getUUID()
+			newpayload.id = id
+			log.Println("event does not exsit, saving...")
+			SavePayload(newpayload)
+			log.Println("event saved")
+
+			w.WriteHeader(http.StatusCreated)
+			json.NewEncoder(w).SetIndent("payload saved, payloadId : %s", id)
+		}
+	} else { //invalid input
+		log.Println("input yaml is invalid!")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(err.Error())
+	}
+}
+
 // Data dedup, check if event exists in DB.
-func isEventExist(newEvent event) bool {
-	var newEventSearchParam = FlatenEvent2EventSearchParam(newEvent)
-	var resultList = searchEventByField(newEventSearchParam)
+func isPayloadExist(newPayload payload) bool {
+	var newPayloadSearchParam = FlatenPayloadSearchParam(newPayload)
+	var resultList = searchPayloadByField(newPayloadSearchParam)
 	return len(resultList) != 0
 }
 
-func getEventsByParams(w http.ResponseWriter, r *http.Request) {
+func getPayloadsByParams(w http.ResponseWriter, r *http.Request) {
 
-	var eventParams eventSearchParam
+	var searchParams payloadSearchParam
 
 	if r.URL.Query().Get("Title") != "" {
-		eventParams.Title = r.URL.Query().Get("Title")
+		searchParams.Title = r.URL.Query().Get("Title")
 	}
 
 	if r.URL.Query().Get("Version") != "" {
-		eventParams.Version = r.URL.Query().Get("Version")
+		searchParams.Version = r.URL.Query().Get("Version")
 	}
 
 	if r.URL.Query().Get("MaintainersEmail") != "" {
 		r.ParseForm()
-		eventParams.MaintainersEmails = r.Form["MaintainersEmail"]
+		searchParams.MaintainersEmails = r.Form["MaintainersEmail"]
 	}
 
 	if r.URL.Query().Get("MaintainersName") != "" {
 		r.ParseForm()
-		eventParams.MaintainersNames = r.Form["MaintainersName"]
+		searchParams.MaintainersNames = r.Form["MaintainersName"]
 	}
 
 	if r.URL.Query().Get("Company") != "" {
-		eventParams.Company = r.URL.Query().Get("Company")
+		searchParams.Company = r.URL.Query().Get("Company")
 	}
 
 	if r.URL.Query().Get("Website") != "" {
-		eventParams.Website = r.URL.Query().Get("Website")
+		searchParams.Website = r.URL.Query().Get("Website")
 	}
 
 	if r.URL.Query().Get("Source") != "" {
-		eventParams.Source = r.URL.Query().Get("Source")
+		searchParams.Source = r.URL.Query().Get("Source")
 	}
 
 	if r.URL.Query().Get("License") != "" {
-		eventParams.License = r.URL.Query().Get("License")
+		searchParams.License = r.URL.Query().Get("License")
 	}
 
 	if r.URL.Query().Get("Description") != "" {
-		eventParams.Description = r.URL.Query().Get("Description")
+		searchParams.Description = r.URL.Query().Get("Description")
 	}
 
-	var eventIds = searchEventByField(eventParams)
-
-	var eventsList = allEvents{}
-	for _, v := range eventIds {
-		eventsList = append(eventsList, eventsDB[v])
+	var payloadIds = searchPayloadByField(searchParams)
+	var eventsList = allpayload{}
+	for _, id := range payloadIds {
+		singlePayload, err := fetchPayload(id)
+		if err != nil {
+			//do nothing
+		}
+		eventsList = append(eventsList, singlePayload)
 	}
 
 	w.WriteHeader(http.StatusOK)

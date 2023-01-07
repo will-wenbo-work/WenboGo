@@ -8,21 +8,21 @@ import (
 
 func TestIfEventExist(t *testing.T) {
 	var savedEvent = getSavedEvent()
-	SaveEvent(savedEvent)
+	SavePayload(savedEvent)
 
 	var unsavedEvent = getUnsavedEvent()
 
-	assert.True(t, isEventExist(savedEvent))
-	assert.False(t, isEventExist(unsavedEvent))
+	assert.True(t, isPayloadExist(savedEvent))
+	assert.False(t, isPayloadExist(unsavedEvent))
 
 }
 
-func getSavedEvent() event {
+func getSavedEvent() payload {
 	var testMaintainer maintainer
 	testMaintainer.Email = "aaa@gmail.com"
 	testMaintainer.Name = "zhaowenbo"
 
-	var testEvent event
+	var testEvent payload
 	testEvent.Title = "title"
 	testEvent.Company = "Company"
 	testEvent.Description = "Description"
@@ -35,12 +35,12 @@ func getSavedEvent() event {
 	return testEvent
 }
 
-func getUnsavedEvent() event {
+func getUnsavedEvent() payload {
 	var testMaintainer maintainer
 	testMaintainer.Email = "aaa@gmail.com"
 	testMaintainer.Name = "zhaowenbo"
 
-	var testEvent event
+	var testEvent payload
 	testEvent.Title = "unsaved event title"
 	testEvent.Company = "Company"
 	testEvent.Description = "Description"

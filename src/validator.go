@@ -5,39 +5,39 @@ import (
 	"net/mail"
 )
 
-func validateReq(newEvent event) (bool, error) {
-	if newEvent.Title == "" {
+func validateReq(newPayload payload) (bool, error) {
+	if newPayload.Title == "" {
 		return false, errors.New("invalid title")
 	}
 
-	if newEvent.Version == "" {
+	if newPayload.Version == "" {
 		return false, errors.New("invalid version")
 	}
 
-	if newEvent.Company == "" {
+	if newPayload.Company == "" {
 		return false, errors.New("invalid company")
 	}
 
-	if newEvent.Website == "" {
+	if newPayload.Website == "" {
 		return false, errors.New("invalid website")
 	}
 
-	if newEvent.Source == "" {
+	if newPayload.Source == "" {
 		return false, errors.New("invalid source")
 	}
 
-	if newEvent.License == "" {
+	if newPayload.License == "" {
 		return false, errors.New("invalid license")
 	}
 
-	if newEvent.Description == "" {
+	if newPayload.Description == "" {
 		return false, errors.New("invalid description")
 	}
 
-	if len(newEvent.Maintainers) == 0 {
+	if len(newPayload.Maintainers) == 0 {
 		return false, errors.New("invalid Maintainer")
 	} else {
-		for _, maintainer := range newEvent.Maintainers {
+		for _, maintainer := range newPayload.Maintainers {
 			if !isValidEmailAddress(maintainer.Email) {
 				return false, errors.New("invalid maintainer email")
 			}

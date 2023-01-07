@@ -1,16 +1,16 @@
 package main
 
-func FlatenEvent2EventSearchParam(eventdata event) eventSearchParam {
-	var result eventSearchParam
-	result.Company = eventdata.Company
-	result.Description = eventdata.Description
-	result.License = eventdata.License
-	result.Source = eventdata.Source
-	result.Title = eventdata.Title
-	result.Version = eventdata.Version
-	result.Website = eventdata.Website
+func FlatenPayloadSearchParam(payloadData payload) payloadSearchParam {
+	var result payloadSearchParam
+	result.Company = payloadData.Company
+	result.Description = payloadData.Description
+	result.License = payloadData.License
+	result.Source = payloadData.Source
+	result.Title = payloadData.Title
+	result.Version = payloadData.Version
+	result.Website = payloadData.Website
 
-	for _, v := range eventdata.Maintainers {
+	for _, v := range payloadData.Maintainers {
 		result.MaintainersNames = append(result.MaintainersNames, v.Name)
 		result.MaintainersEmails = append(result.MaintainersEmails, v.Email)
 	}

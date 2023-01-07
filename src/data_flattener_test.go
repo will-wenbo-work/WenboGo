@@ -10,7 +10,7 @@ func TestFlattenNormalEventData(t *testing.T) {
 
 	var testEvent = getGoodEvent()
 
-	var result = FlatenEvent2EventSearchParam(testEvent)
+	var result = FlatenPayloadSearchParam(testEvent)
 
 	assert.Equal(t, "title", result.Title)
 	assert.Equal(t, "Company", result.Company)
