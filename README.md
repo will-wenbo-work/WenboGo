@@ -11,7 +11,8 @@ happy holiday
 
 or you can open this project in vs code and hit f5 and start local debug
 # Open APIs
-1  POST: http://localhost:8080/event
+1 upload payload 
+PUT: http://localhost:8080/event
 this api take yaml payload and save it, here's an example payload:
 ```yaml
 title: Valid App 1
@@ -30,8 +31,19 @@ description: |
  Some application content, and description
 ``` 
 
-2  GET: http://localhost:8080/events/?{parameter}={value}&{parameter}={value}..
+2 Search Payload by parameter
+GET: http://localhost:8080/events/?{parameter}={value}&{parameter}={value}..
 it returns all saved payloads which meet the search requirement 
+
+
+3 Change exsiting payload
+POST:  http://localhost:8080/payload/{id}
+
+4 delete exsiting payload
+DELETE:  http://localhost:8080/payload/{id}
+
+5 get exsiting payload by ID
+GET:  http://localhost:8080/payload/{id}
 
 
 # What's cool about this project
