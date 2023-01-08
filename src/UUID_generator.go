@@ -1,12 +1,17 @@
 package main
 
-import "strconv"
-
-var curr int = 0
+var counter int = 1
+var chars string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func getUUID() string {
 
-	currIdStr := strconv.Itoa(curr)
-	curr++
+	var currIdStr string
+	var curr = counter
+	counter++
+	for curr > 0 {
+		curr--
+		currIdStr = currIdStr + string(chars[curr%62])
+		curr /= 62
+	}
 	return currIdStr
 }

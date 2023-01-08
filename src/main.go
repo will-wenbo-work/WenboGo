@@ -144,7 +144,12 @@ func createPayload(w http.ResponseWriter, r *http.Request) {
 			log.Println("event saved")
 
 			w.WriteHeader(http.StatusCreated)
-			json.NewEncoder(w).SetIndent("payload saved, payloadId : %s", id)
+			fmt.Println("payload saved, payloadId : %s", id)
+			json.NewEncoder(w).Encode(fmt.Sprintf("payload saved, payloadId : %s", id))
+		} else {
+			log.Println("input yaml payload exsiting already!")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(fmt.Sprintf("payload exsits already"))
 		}
 	} else { //invalid input
 		log.Println("input yaml is invalid!")
