@@ -4,7 +4,7 @@ var counter int = 1
 var chars string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func getUUID() string {
-
+	mu.Lock()
 	var currIdStr string
 	var curr = counter
 	counter++
@@ -13,5 +13,6 @@ func getUUID() string {
 		currIdStr = currIdStr + string(chars[curr%62])
 		curr /= 62
 	}
+	mu.Unlock()
 	return currIdStr
 }
