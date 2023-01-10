@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"sync"
 )
 
 var payloadDB = allpayload{}
@@ -16,15 +15,12 @@ var source2IdMap = make(map[string][]string)
 var license2IdMap = make(map[string][]string)
 var description2IdMap = make(map[string][]string)
 var id2PayloadMap = make(map[string]payload)
-var mu sync.Mutex
 
 // save the event, lock the "table" when writing.
 func SavePayload(newPayload payload) {
-	mu.Lock()
 	payloadDB = append(payloadDB, newPayload)
 	id2PayloadMap[newPayload.id] = newPayload
 	IndexingEachField(newPayload)
-	mu.Unlock()
 }
 
 func fetchPayload(id string) (payload, error) {

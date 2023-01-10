@@ -1,7 +1,12 @@
 package main
 
+import (
+	"sync"
+)
+
 var counter int = 1
 var chars string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+var mu sync.Mutex
 
 func getUUID() string {
 	mu.Lock()
