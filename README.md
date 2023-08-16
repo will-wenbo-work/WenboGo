@@ -51,13 +51,13 @@ GET:  http://localhost:8080/payload/{id}
 
 2, data deduplicate, we deduplicate data if it's already saved once.
 
-3, data flattener, we flatten the payload to make seach faster.
+3, data flattener, we flatten the payload to make search faster.
 
 4, UUID generator
 
 5, concurrent save in data saving, (but not read committed)
 
-6, localing search indexing, every field and be searched.
+6, localing search indexing, every field can be searched.
 
 7, request/email validation
 
